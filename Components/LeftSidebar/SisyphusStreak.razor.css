@@ -1,0 +1,103 @@
+.streak-card {
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.streak-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.streak-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.streak-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+/* SVG hill area */
+.streak-hill-wrapper {
+    position: relative;          /* anchor for .notch-label overlay */
+    background: var(--color-bg-alt);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-card-border);
+    overflow: visible;           /* let the label peek below the SVG */
+    transition: background var(--transition-slow);
+}
+
+.streak-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Notch label — overlaid on SVG via computed % position */
+.notch-label {
+    position: absolute;
+    transform: translateX(-50%);
+    font-family: var(--font-body);
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--color-lapis);
+    opacity: 0.85;
+    white-space: nowrap;
+    pointer-events: none;
+    letter-spacing: 0.06em;
+}
+/* Counters */
+.streak-counters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) 0;
+}
+
+.counter-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.counter-value {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1;
+}
+
+.counter-label {
+    font-size: 0.68rem;
+    color: var(--color-text-muted);
+    letter-spacing: 0.03em;
+    text-align: center;
+}
+
+.counter-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--color-card-border);
+}
+
+/* Advance button */
+.streak-advance-btn {
+    width: 100%;
+    font-size: 0.8rem;
+    padding: 0.5rem;
+    color: var(--color-text-muted);
+}
+
+.streak-advance-btn:hover {
+    color: var(--color-gold);
+    border-color: var(--color-gold);
+}

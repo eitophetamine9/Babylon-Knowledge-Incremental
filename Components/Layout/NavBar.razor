@@ -1,0 +1,66 @@
+@inject StudySessionState State
+@inject NavigationManager Nav
+@implements IDisposable
+
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+    <!-- Brand -->
+    <div class="nav-brand" @onclick='() => Nav.NavigateTo("/workspace")'>
+        <div class="nav-logo" aria-hidden="true">🏛️</div>
+        <div class="nav-brand-text">
+            <span class="nav-title">Babylon</span>
+            <span class="nav-subtitle">Knowledge Incremental</span>
+        </div>
+    </div>
+
+    <!-- Center tabs (evenly spaced) -->
+    <div class="nav-tabs" role="tablist">
+        <NavLink class="nav-tab" href="/workspace" Match="NavLinkMatch.Prefix" role="tab">
+            Workspace
+        </NavLink>
+        <NavLink class="nav-tab" href="/treasury" Match="NavLinkMatch.Prefix" role="tab">
+            Treasury
+        </NavLink>
+        <NavLink class="nav-tab nav-tab-disabled" href="#" role="tab" aria-disabled="true" title="Archives unlock in a future epoch">
+            Library <span class="nav-tab-tag">Soon</span>
+        </NavLink>
+    </div>
+
+    <!-- Right controls -->
+    <div class="nav-controls">
+        <!-- Capsule counter -->
+        <div class="nav-capsules" title="Available capsules">
+            <span class="capsule-icon" aria-hidden="true">✨</span>
+            <span class="capsule-count" id="capsule-counter">@State.TotalCapsules.ToString("N0")</span>
+        </div>
+
+        <!-- Dark mode toggle -->
+        <button class="nav-theme-btn btn btn-ghost"
+                id="theme-toggle-btn"
+                @onclick="ToggleTheme"
+                title="@(State.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")"
+                aria-label="Toggle dark mode">
+            @if (State.IsDarkMode)
+            {
+                <span class="theme-icon" aria-hidden="true">☀️</span>
+            }
+            else
+            {
+                <span class="theme-icon" aria-hidden="true">🌙</span>
+            }
+        </button>
+
+        <!-- User avatar -->
+        <div class="nav-avatar" title="Scholar profile" aria-label="User avatar">AS</div>
+    </div>
+</nav>
+
+@code {
+    protected override void OnInitialized()
+        => State.OnChange += StateHasChanged;
+
+    private async Task ToggleTheme()
+        => await State.ToggleThemeAsync();
+
+    public void Dispose()
+        => State.OnChange -= StateHasChanged;
+}

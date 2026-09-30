@@ -1,0 +1,70 @@
+@inject StudySessionState State
+@implements IDisposable
+
+<div class="tower-card" aria-label="Tower of Babel — study progression">
+    <!-- Tower visual area -->
+    <div class="tower-visual" aria-hidden="true">
+        <!-- Architectural grid overlay -->
+        <div class="tower-arch-lines"></div>
+
+        <!-- Ascending floors -->
+        <div class="tower-floors">
+            @for (int f = 5; f >= 1; f--)
+            {
+                <div class="tower-floor floor-@f"></div>
+            }
+        </div>
+
+        <!-- Floor label in center -->
+        <div class="tower-center-label">
+            <span class="tower-floor-label">@State.Tower.FloorLabel</span>
+            <span class="tower-floor-sub">The living tower</span>
+        </div>
+
+        <!-- Level badge -->
+        <div class="tower-level-badge" aria-label="Current level: @State.Tower.CurrentLevel">
+            <span class="tower-level-label">Level @State.Tower.CurrentLevel</span>
+        </div>
+    </div>
+
+    <!-- Energy panel -->
+    <div class="tower-panel">
+        <div class="panel-header">
+            <div>
+                <p class="panel-eyebrow font-caps">Next Gacha Capsule</p>
+                <p class="panel-energy" aria-label="Energy: @State.Tower.CurrentEnergy of @State.Tower.EnergyRequiredForNextLevel">
+                    @State.Tower.CurrentEnergy.ToString("N0")
+                    <span class="panel-energy-sep">/</span>
+                    <span class="panel-energy-total">@State.Tower.EnergyRequiredForNextLevel.ToString("N0") Energy</span>
+                </p>
+            </div>
+            <span class="panel-gem" aria-hidden="true">💎</span>
+        </div>
+
+        <!-- Energy progress bar -->
+        <div class="progress-track" role="progressbar"
+             aria-valuenow="@((int)State.Tower.EnergyPercent)"
+             aria-valuemin="0"
+             aria-valuemax="100"
+             aria-label="Tower energy progress">
+            <div class="progress-fill"
+                 style="width: @((int)State.Tower.EnergyPercent)%">
+            </div>
+        </div>
+
+        <!-- Offer energy button -->
+        <button class="btn btn-gold offer-btn"
+                id="offer-energy-btn"
+                @onclick="State.OfferEnergy">
+            <span aria-hidden="true">⚡</span> Offer Energy
+        </button>
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+        => State.OnChange += StateHasChanged;
+
+    public void Dispose()
+        => State.OnChange -= StateHasChanged;
+}

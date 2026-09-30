@@ -1,0 +1,71 @@
+@if (Item is not null)
+{
+    <div class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title"
+         @onclick="HandleBackdropClick">
+        <div class="pull-modal" @onclick:stopPropagation="true" style="animation: dropIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)">
+            <!-- Rarity badge -->
+            <div class="modal-rarity-banner">
+                <span class="rarity-badge @Item.RarityBadgeClass" aria-label="Rarity: @Item.RarityLabel">
+                    @if (Item.Rarity == Rarity.Epic)
+                    { <span aria-hidden="true">✦</span> }
+                    @Item.RarityLabel Reward
+                </span>
+            </div>
+
+            <!-- Close button -->
+            <button class="modal-close btn-ghost"
+                    id="close-pull-modal-btn"
+                    @onclick="OnClose"
+                    aria-label="Close pull result">
+                ×
+            </button>
+
+            <!-- Item display -->
+            <div class="modal-item-card" style="border-color: @Item.RarityColor">
+                <!-- Emoji visual -->
+                <div class="modal-item-emoji" aria-hidden="true" style="filter: drop-shadow(0 0 24px @Item.RarityColor)">
+                    @Item.Emoji
+                </div>
+
+                <!-- Info -->
+                <div class="modal-item-info">
+                    <p class="modal-category font-caps" style="color: @Item.RarityColor">
+                        @Item.Category · Theme
+                    </p>
+                    <h2 class="modal-item-name" id="modal-title">@Item.Name</h2>
+                    <p class="modal-item-desc">@Item.Description</p>
+
+                    <!-- Added tag -->
+                    <div class="modal-added-tag">
+                        <span aria-hidden="true">✓</span> Added to collection
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oracle note -->
+            <p class="modal-oracle-note font-caps">The Oracle favours steadfast scholars</p>
+
+            <!-- Action buttons -->
+            <div class="modal-actions">
+                <button class="btn btn-outline modal-action-btn"
+                        id="view-collection-btn"
+                        @onclick="OnClose">
+                    View Collection
+                </button>
+                <button class="btn btn-primary modal-action-btn"
+                        id="equip-theme-btn"
+                        @onclick="OnClose">
+                    <span aria-hidden="true">✦</span> Equip Theme
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public GachaItem? Item { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnClose { get; set; }
+
+    private async Task HandleBackdropClick()
+        => await OnClose.InvokeAsync();
+}

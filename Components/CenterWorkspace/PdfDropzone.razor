@@ -1,0 +1,138 @@
+@inject StudySessionState State
+@implements IDisposable
+
+<div class="pdf-card card" aria-label="Core utility — PDF study set generator">
+    <!-- Header row -->
+    <div class="pdf-header">
+        <div>
+            <h2 class="pdf-title">Core Utility</h2>
+        </div>
+        <span class="pdf-arrow-label text-muted">PDF → study set</span>
+    </div>
+
+    <!-- Hidden file input for native file browsing -->
+    <InputFile id="pdf-upload-input" OnChange="HandleFileSelected" accept=".pdf" class="hidden-file-input" />
+
+    @if (State.HasLoadedFile)
+    {
+        <!-- Loaded file container -->
+        <div class="file-loaded-container">
+            <div class="file-badge" aria-label="Loaded file: @State.LoadedFileName">
+                <div class="file-badge-icon" aria-hidden="true">📄</div>
+                <div class="file-badge-info">
+                    <span class="file-name" title="@State.LoadedFileName">@State.LoadedFileName</span>
+                    <span class="file-meta">
+                        @State.LoadedFileSizeLabel · Ready to generate
+                    </span>
+                </div>
+                <span class="file-uploaded-tag">UPLOADED</span>
+            </div>
+
+            <!-- Options to upload a different PDF or switch presets -->
+            <div class="file-switch-bar">
+                <label for="pdf-upload-input" class="btn btn-outline btn-sm upload-diff-btn" title="Upload a different PDF from your computer">
+                    <span aria-hidden="true">📤</span> Upload Different PDF
+                </label>
+
+                <div class="dropdown-presets">
+                    <button type="button" class="btn btn-ghost btn-sm preset-btn" @onclick="TogglePresets" title="Select another preset study scroll">
+                        <span aria-hidden="true">📜</span> Choose Preset ▾
+                    </button>
+                    @if (showPresets)
+                    {
+                        <div class="presets-menu">
+                            <button type="button" class="preset-option" @onclick='() => SelectPreset("C# Basic Syntax.pdf", 2_400_000)'>
+                                💻 C# Basic Syntax.pdf (2.4 MB)
+                            </button>
+                            <button type="button" class="preset-option" @onclick='() => SelectPreset("Babylonian History & Architecture.pdf", 4_100_000)'>
+                                🏛️ Babylonian History & Architecture.pdf (4.1 MB)
+                            </button>
+                            <button type="button" class="preset-option" @onclick='() => SelectPreset("Algorithms & Complexity.pdf", 3_200_000)'>
+                                ⚡ Algorithms & Complexity.pdf (3.2 MB)
+                            </button>
+                        </div>
+                    }
+                </div>
+
+                <button type="button" class="btn btn-ghost btn-sm remove-file-btn" @onclick="State.ClearFile" title="Remove PDF">
+                    ✕
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Drag & drop zone -->
+        <label for="pdf-upload-input"
+               class="dropzone"
+               id="pdf-dropzone"
+               role="button"
+               tabindex="0"
+               aria-label="Drop a PDF here or click to browse files"
+               @ondragover:preventDefault="true"
+               @ondrop="HandleDrop">
+            <span class="dropzone-icon" aria-hidden="true">📂</span>
+            <p class="dropzone-text">Drop a PDF here to begin</p>
+            <p class="dropzone-sub">or click to browse from device</p>
+        </label>
+
+        <!-- Presets quick pick chips -->
+        <div class="presets-chips">
+            <span class="presets-label">Or choose a scroll:</span>
+            <button type="button" class="chip-btn" @onclick='() => SelectPreset("C# Basic Syntax.pdf", 2_400_000)'>C# Syntax</button>
+            <button type="button" class="chip-btn" @onclick='() => SelectPreset("Babylonian History & Architecture.pdf", 4_100_000)'>Babylonian History</button>
+            <button type="button" class="chip-btn" @onclick='() => SelectPreset("Algorithms & Complexity.pdf", 3_200_000)'>Algorithms</button>
+        </div>
+    }
+
+    <!-- Action buttons -->
+    <div class="pdf-actions">
+        <button class="btn btn-primary pdf-action-btn"
+                id="generate-flashcards-btn"
+                @onclick="State.ActivateFlashcards"
+                disabled="@(!State.HasLoadedFile)">
+            <span aria-hidden="true">🗃️</span> Generate Flashcards
+        </button>
+        <button class="btn btn-outline pdf-action-btn"
+                id="generate-quiz-btn"
+                @onclick="State.ActivateQuiz"
+                disabled="@(!State.HasLoadedFile)">
+            <span aria-hidden="true">❓</span> Generate Quiz
+        </button>
+    </div>
+</div>
+
+@code {
+    private bool showPresets = false;
+
+    protected override void OnInitialized()
+        => State.OnChange += StateHasChanged;
+
+    private void TogglePresets()
+    {
+        showPresets = !showPresets;
+    }
+
+    private void SelectPreset(string name, long size)
+    {
+        showPresets = false;
+        State.SimulateFileLoad(name, size);
+    }
+
+    private void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        if (e.File is not null)
+        {
+            showPresets = false;
+            State.SimulateFileLoad(e.File.Name, e.File.Size);
+        }
+    }
+
+    private void HandleDrop(DragEventArgs e)
+    {
+        SelectPreset("Babylonian History & Architecture.pdf", 4_100_000);
+    }
+
+    public void Dispose()
+        => State.OnChange -= StateHasChanged;
+}

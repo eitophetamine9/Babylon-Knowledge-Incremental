@@ -1,0 +1,175 @@
+@page "/login"
+@layout EmptyLayout
+@inject NavigationManager Nav
+@inject StudySessionState State
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>Enter the Academy — Babylon Knowledge Incremental</PageTitle>
+
+<div class="login-page">
+    <!-- Scholar edition badge -->
+    <div class="scholar-badge" aria-label="Scholar Edition 2026">
+        📖 Scholar Edition · 2026
+    </div>
+
+    <!-- Auth card -->
+    <div class="login-card" role="main">
+        <!-- Emblem -->
+        <div class="login-emblem" aria-hidden="true">🏛️</div>
+
+        <!-- Title -->
+        <h1 class="login-title">Babylon Knowledge<br />Incremental</h1>
+        <p class="login-tagline">Enter your private academy and continue the ascent.</p>
+
+        <!-- Tab switcher -->
+        <div class="auth-tabs" role="tablist">
+            <button id="tab-login"
+                    class="auth-tab @(IsLoginMode ? "auth-tab-active" : "")"
+                    role="tab"
+                    aria-selected="@IsLoginMode"
+                    @onclick='() => IsLoginMode = true'>
+                Log in
+            </button>
+            <button id="tab-register"
+                    class="auth-tab @(!IsLoginMode ? "auth-tab-active" : "")"
+                    role="tab"
+                    aria-selected="@(!IsLoginMode)"
+                    @onclick='() => IsLoginMode = false'>
+                Register
+            </button>
+        </div>
+
+        <!-- Form -->
+        <div class="login-form">
+            <!-- Email -->
+            <div class="form-group">
+                <label class="form-label" for="email-input">Email</label>
+                <div class="input-wrapper">
+                    <span class="input-icon" aria-hidden="true">✉️</span>
+                    <input id="email-input"
+                           type="email"
+                           class="form-input input-with-icon"
+                           placeholder="scholar@academy.edu"
+                           @bind="Email"
+                           autocomplete="email" />
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label class="form-label" for="password-input">Password</label>
+                <div class="input-wrapper">
+                    <span class="input-icon" aria-hidden="true">🔒</span>
+                    <input id="password-input"
+                           type="@(ShowPassword ? "text" : "password")"
+                           class="form-input input-with-icon input-with-action"
+                           placeholder="••••••••••"
+                           @bind="Password"
+                           autocomplete="@(IsLoginMode ? "current-password" : "new-password")" />
+                    <button class="input-action-btn"
+                            type="button"
+                            @onclick="() => ShowPassword = !ShowPassword"
+                            aria-label="@(ShowPassword ? "Hide password" : "Show password")">
+                        @(ShowPassword ? "🙈" : "👁️")
+                    </button>
+                </div>
+            </div>
+
+            <!-- Remember me + forgot password (login mode only) -->
+            @if (IsLoginMode)
+            {
+                <div class="login-extras">
+                    <label class="checkbox-label" for="remember-me">
+                        <input id="remember-me" type="checkbox" class="checkbox-input" @bind="RememberMe" />
+                        <span class="checkbox-text">Remember me</span>
+                    </label>
+                    <a href="#" class="forgot-link" id="forgot-password-link">Forgot password?</a>
+                </div>
+            }
+
+            <!-- Error message -->
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <p class="form-error" role="alert">@ErrorMessage</p>
+            }
+
+            <!-- Submit -->
+            <button id="enter-academy-btn"
+                    class="btn btn-primary login-submit"
+                    @onclick="HandleSubmit"
+                    disabled="@IsLoading">
+                @if (IsLoading)
+                {
+                    <span class="loading-spinner" aria-hidden="true">⏳</span>
+                    <span>Entering…</span>
+                }
+                else
+                {
+                    <span aria-hidden="true">→</span>
+                    <span>@(IsLoginMode ? "Enter the Academy" : "Create Scholar Account")</span>
+                }
+            </button>
+        </div>
+
+        <!-- Footer link -->
+        <p class="login-footer">
+            @if (IsLoginMode)
+            {
+                <span>New scholar? <a href="#" id="switch-to-register" @onclick='() => IsLoginMode = false' @onclick:preventDefault="true"><strong>Register</strong></a></span>
+            }
+            else
+            {
+                <span>Already a scholar? <a href="#" id="switch-to-login" @onclick='() => IsLoginMode = true' @onclick:preventDefault="true"><strong>Log in</strong></a></span>
+            }
+        </p>
+    </div>
+</div>
+
+@code {
+    private bool IsLoginMode = true;
+    private string Email = string.Empty;
+    private string Password = string.Empty;
+    private bool RememberMe;
+    private bool ShowPassword;
+    private bool IsLoading;
+    private string ErrorMessage = string.Empty;
+
+    protected override void OnInitialized()
+        => State.OnChange += StateHasChanged;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await State.InitializeThemeAsync();
+    }
+
+    private async Task HandleSubmit()
+    {
+        ErrorMessage = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(Email))
+        {
+            ErrorMessage = "Please enter your scholar email.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(Password) || Password.Length < 6)
+        {
+            ErrorMessage = "Password must be at least 6 characters.";
+            return;
+        }
+
+        IsLoading = true;
+        StateHasChanged();
+
+        // Simulate async auth — replace with real backend call
+        await Task.Delay(800);
+
+        IsLoading = false;
+        Nav.NavigateTo("/workspace");
+    }
+
+    public void Dispose()
+        => State.OnChange -= StateHasChanged;
+}

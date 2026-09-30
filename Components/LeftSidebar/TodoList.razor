@@ -1,0 +1,95 @@
+@inject StudySessionState State
+@implements IDisposable
+
+<div class="todo-card card" aria-label="To-do list">
+    <!-- Header -->
+    <div class="todo-header">
+        <h2 class="todo-title">To-Do List</h2>
+        <span class="todo-progress-label text-gold">
+            @State.CompletedCount of @State.Todos.Count complete
+        </span>
+    </div>
+
+    <!-- Add task input -->
+    <div class="todo-add-row">
+        <input id="todo-input"
+               type="text"
+               class="form-input todo-input"
+               placeholder="Add a scholarly task…"
+               @bind="NewTaskTitle"
+               @bind:event="oninput"
+               @onkeydown="HandleKeyDown"
+               maxlength="120"
+               aria-label="New task title" />
+        <button class="btn btn-primary todo-add-btn"
+                id="add-task-btn"
+                @onclick="AddTask"
+                disabled="@string.IsNullOrWhiteSpace(NewTaskTitle)">
+            Add Task
+        </button>
+    </div>
+
+    <!-- Task list -->
+    <ul class="todo-list" role="list" aria-label="Study tasks">
+        @foreach (var todo in State.Todos)
+        {
+            <li class="todo-item @(todo.IsCompleted ? "completed" : "")" @key="todo.Id" role="listitem">
+                <button class="todo-checkbox"
+                        id="todo-check-@todo.Id"
+                        role="checkbox"
+                        aria-checked="@todo.IsCompleted"
+                        aria-label="@(todo.IsCompleted ? "Mark incomplete" : "Mark complete"): @todo.Title"
+                        @onclick="() => State.ToggleTodo(todo.Id)">
+                    @if (todo.IsCompleted)
+                    {
+                        <span class="check-icon" aria-hidden="true">✓</span>
+                    }
+                </button>
+                <span class="todo-text">@todo.Title</span>
+                <button class="todo-remove btn-ghost"
+                        aria-label="Remove task: @todo.Title"
+                        @onclick="() => State.RemoveTodo(todo.Id)">
+                    ×
+                </button>
+            </li>
+        }
+    </ul>
+
+    <!-- Daily progress bar -->
+    <div class="todo-footer">
+        <div class="progress-row">
+            <span class="progress-label">Today's progress</span>
+            <span class="progress-pct text-gold">@((int)State.TodayProgress)%</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill progress-fill-gold"
+                 style="width: @((int)State.TodayProgress)%"
+                 role="progressbar"
+                 aria-valuenow="@((int)State.TodayProgress)"
+                 aria-valuemin="0"
+                 aria-valuemax="100">
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string NewTaskTitle = string.Empty;
+
+    protected override void OnInitialized()
+        => State.OnChange += StateHasChanged;
+
+    private void AddTask()
+    {
+        State.AddTodo(NewTaskTitle);
+        NewTaskTitle = string.Empty;
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AddTask();
+    }
+
+    public void Dispose()
+        => State.OnChange -= StateHasChanged;
+}

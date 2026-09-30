@@ -1,0 +1,180 @@
+@inject StudySessionState State
+@implements IDisposable
+
+<div class="studydeck-card card" aria-label="Active study session">
+    <!-- Header row -->
+    <div class="deck-header">
+        <div>
+            <h2 class="deck-title">Active Study</h2>
+        </div>
+        <span class="deck-counter text-gold">
+            Card @(State.CurrentCardIndex + 1) of @State.TotalCards
+        </span>
+    </div>
+
+    <!-- Mode tabs -->
+    <div class="deck-tabs" role="tablist" aria-label="Study mode">
+        <button id="tab-flashcards"
+                class="deck-tab @(State.IsFlashcardMode ? "deck-tab-active" : "")"
+                role="tab"
+                aria-selected="@State.IsFlashcardMode"
+                @onclick="State.SwitchToFlashcards">
+            Flashcards
+        </button>
+        <button id="tab-quiz"
+                class="deck-tab @(!State.IsFlashcardMode ? "deck-tab-active" : "")"
+                role="tab"
+                aria-selected="@(!State.IsFlashcardMode)"
+                @onclick="State.SwitchToQuiz">
+            Quiz
+        </button>
+    </div>
+
+    <!-- Study content area -->
+    @if (State.IsFlashcardMode)
+    {
+        @if (State.CurrentFlashcard is {} card)
+        {
+            <!-- 3D flip card -->
+            <div class="card-scene"
+                 id="flashcard-@card.Id"
+                 @onclick="State.FlipCurrentCard"
+                 role="button"
+                 tabindex="0"
+                 aria-label="@(card.IsFlipped ? "Answer: " + card.Answer : "Question: " + card.Question + ". Click to reveal.")"
+                 @onkeydown="HandleCardKey">
+                <div class="card-inner @(card.IsFlipped ? "flipped" : "")">
+                    <!-- Front face (question) -->
+                    <div class="card-face card-front">
+                        <span class="card-tag font-caps">@card.Tag</span>
+                        <span class="card-label text-gold font-caps">Question</span>
+                        <p class="card-question">@card.Question</p>
+                        <p class="card-hint text-muted">Reveal the answer or press space to flip</p>
+                    </div>
+                    <!-- Back face (answer) -->
+                    <div class="card-face card-back">
+                        <span class="card-tag font-caps">@card.Tag</span>
+                        <span class="card-label text-gold font-caps">Answer</span>
+                        <p class="card-answer">@card.Answer</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flashcard controls -->
+            <div class="deck-controls">
+                <button class="btn btn-outline deck-ctrl-btn"
+                        id="reveal-answer-btn"
+                        @onclick="State.FlipCurrentCard">
+                    <span aria-hidden="true">👁</span> Reveal Answer
+                </button>
+                <button class="btn btn-primary deck-ctrl-btn"
+                        id="next-card-btn"
+                        @onclick="State.NextCard">
+                    → Next Card
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="deck-empty">
+                <p>Generate flashcards from a PDF to begin studying.</p>
+            </div>
+        }
+    }
+    else
+    {
+        @if (State.CurrentQuizQuestion is {} q)
+        {
+            <!-- Quiz question card -->
+            <div class="quiz-card" id="quiz-@q.Id" role="group" aria-label="Quiz question @(State.CurrentCardIndex + 1)">
+                <p class="quiz-prompt">@q.Prompt</p>
+                <div class="quiz-options" role="radiogroup" aria-label="Answer choices">
+                    @for (int i = 0; i < q.Options.Count; i++)
+                    {
+                        var idx = i;
+                        var optionClass = "quiz-option";
+                        if (q.IsAnswered)
+                        {
+                            optionClass += idx == q.CorrectIndex ? " option-correct"
+                                        : idx == q.SelectedAnswerIndex ? " option-wrong"
+                                        : "";
+                        }
+                        else if (idx == q.SelectedAnswerIndex)
+                        {
+                            optionClass += " option-selected";
+                        }
+
+                        <label class="@optionClass" for="option-@q.Id-@idx">
+                            <input type="radio"
+                                   id="option-@q.Id-@idx"
+                                   name="quiz-@q.Id"
+                                   class="sr-only"
+                                   checked="@(q.SelectedAnswerIndex == idx)"
+                                   disabled="@q.IsAnswered"
+                                   @onchange="() => State.SelectQuizAnswer(idx)" />
+                            <span class="option-letter">@((char)('A' + idx))</span>
+                            <span class="option-text">@q.Options[idx]</span>
+                            @if (q.IsAnswered && idx == q.CorrectIndex)
+                            {
+                                <span class="option-mark" aria-label="Correct">✓</span>
+                            }
+                            else if (q.IsAnswered && idx == q.SelectedAnswerIndex && !q.IsCorrect)
+                            {
+                                <span class="option-mark" aria-label="Wrong">✗</span>
+                            }
+                        </label>
+                    }
+                </div>
+                @if (q.IsAnswered)
+                {
+                    <div class="quiz-result @(q.IsCorrect ? "result-correct" : "result-wrong")">
+                        @(q.IsCorrect ? "✅ Correct! Well done, Scholar." : "❌ Not quite. The correct answer is highlighted.")
+                    </div>
+                }
+            </div>
+
+            <!-- Quiz controls -->
+            <div class="deck-controls">
+                @if (!q.IsAnswered)
+                {
+                    <button class="btn btn-primary deck-ctrl-btn"
+                            id="submit-answer-btn"
+                            disabled="@(q.SelectedAnswerIndex < 0)"
+                            @onclick="() => State.SelectQuizAnswer(q.SelectedAnswerIndex)">
+                        Submit Answer
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-primary deck-ctrl-btn"
+                            id="next-question-btn"
+                            @onclick="State.NextCard">
+                        → Next Question
+                    </button>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="deck-empty">
+                <p>Generate a quiz from a PDF to test your knowledge.</p>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    protected override void OnInitialized()
+        => State.OnChange += StateHasChanged;
+
+    private void HandleCardKey(KeyboardEventArgs e)
+    {
+        if (e.Key is " " or "Enter")
+            State.FlipCurrentCard();
+        else if (e.Key == "ArrowRight")
+            State.NextCard();
+    }
+
+    public void Dispose()
+        => State.OnChange -= StateHasChanged;
+}

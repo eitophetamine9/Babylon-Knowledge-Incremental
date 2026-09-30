@@ -1,0 +1,28 @@
+@inherits LayoutComponentBase
+@inject StudySessionState State
+@inject IJSRuntime JS
+@implements IDisposable
+
+<div class="layout-root">
+    <NavBar />
+    <main class="layout-main">
+        @Body
+    </main>
+</div>
+
+@code {
+    protected override void OnInitialized()
+        => State.OnChange += StateHasChanged;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try { await State.InitializeThemeAsync(); }
+            catch { /* JS not ready yet — theme defaults to light */ }
+        }
+    }
+
+    public void Dispose()
+        => State.OnChange -= StateHasChanged;
+}

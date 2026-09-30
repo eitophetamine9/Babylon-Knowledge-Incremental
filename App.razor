@@ -1,0 +1,41 @@
+<ErrorBoundary>
+    <ChildContent>
+        <Router AppAssembly="@typeof(App).Assembly">
+            <Found Context="routeData">
+                <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+                <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+            </Found>
+            <NotFound>
+                <PageTitle>Not Found — Babylon Knowledge Incremental</PageTitle>
+                <LayoutView Layout="@typeof(MainLayout)">
+                    <p role="alert" style="padding:2rem; font-family:'Inter',sans-serif;">
+                        This scroll does not exist. Return to the <a href="/">Academy</a>.
+                    </p>
+                </LayoutView>
+            </NotFound>
+        </Router>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        <div style="padding:2rem; font-family:monospace; background:#1a1a1a; color:#ff6b6b; min-height:100vh;">
+            <h2 style="color:#D4AF37; font-family:sans-serif;">⚠️ Unhandled Error</h2>
+            <p style="color:#fff; font-family:sans-serif; margin-bottom:1rem;">
+                Please share this with your developer:
+            </p>
+            <pre style="background:#111; padding:1rem; border-radius:8px; overflow:auto; font-size:0.85rem; color:#ff9999;">
+@ex.GetType().FullName: @ex.Message
+
+@ex.StackTrace
+            </pre>
+            @if (ex.InnerException is not null)
+            {
+                <pre style="background:#111; padding:1rem; border-radius:8px; overflow:auto; font-size:0.85rem; color:#ffcc99; margin-top:1rem;">
+Inner: @ex.InnerException.Message
+@ex.InnerException.StackTrace
+                </pre>
+            }
+            <button onclick="location.reload()" style="margin-top:1rem; padding:0.75rem 1.5rem; background:#D4AF37; color:#1a1a1a; border:none; border-radius:8px; cursor:pointer; font-weight:700;">
+                Reload
+            </button>
+        </div>
+    </ErrorContent>
+</ErrorBoundary>

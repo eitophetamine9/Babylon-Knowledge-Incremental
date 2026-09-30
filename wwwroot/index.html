@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Babylon Knowledge Incremental — A gamified study platform blending Hellenistic elegance with incremental progression." />
+    <title>Babylon Knowledge Incremental</title>
+
+    <!-- Google Fonts: Cinzel (classical headings) + Inter (UI body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Global design tokens & base styles -->
+    <link rel="stylesheet" href="css/app.css" />
+
+    <!-- Blazor CSS isolation bundle (auto-generated) -->
+    <link rel="stylesheet" href="BabylonKnowledgeIncremental.styles.css" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛️</text></svg>">
+
+    <style>
+        /* Loading splash — lives OUTSIDE #app so Blazor replacement doesn't affect it */
+        #babylon-loading {
+            position: fixed;
+            inset: 0;
+            background: var(--color-bg, #F4EEDD);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.4s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        #babylon-loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loading-inner {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        .loading-emblem { font-size: 3rem; animation: bl-pulse 2s ease-in-out infinite; }
+        .loading-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            color: #1A1A2E;
+            letter-spacing: 0.05em;
+        }
+        .loading-sub { font-size: 0.875rem; color: #6B6651; }
+        .loading-bar-track {
+            width: 200px; height: 3px;
+            background: #EBE3CD;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .loading-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1B4965, #D4AF37);
+            border-radius: 999px;
+            animation: bl-fill 1.8s ease-in-out infinite;
+        }
+        @keyframes bl-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50%       { transform: scale(1.08); opacity: 0.85; }
+        }
+        @keyframes bl-fill {
+            0%   { width: 0%;  margin-left: 0; }
+            50%  { width: 70%; margin-left: 0; }
+            100% { width: 0%;  margin-left: 100%; }
+        }
+
+        [data-theme="dark"] #babylon-loading { background: #100E0B; }
+        [data-theme="dark"] .loading-title   { color: #F0E8D6; }
+        [data-theme="dark"] .loading-sub     { color: #8A7A62; }
+        [data-theme="dark"] .loading-bar-track { background: #221C16; }
+    </style>
+</head>
+
+<body>
+    <!-- Loading splash — OUTSIDE #app so Blazor mount doesn't destroy it prematurely -->
+    <div id="babylon-loading" aria-live="polite" aria-label="Loading Babylon Knowledge Incremental">
+        <div class="loading-inner">
+            <div class="loading-emblem" aria-hidden="true">🏛️</div>
+            <p class="loading-title">Babylon Knowledge Incremental</p>
+            <p class="loading-sub">Preparing your academy…</p>
+            <div class="loading-bar-track">
+                <div class="loading-bar-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blazor mounts here -->
+    <div id="app">
+        <noscript>
+            <p style="padding:2rem;font-family:sans-serif;">
+                JavaScript is required to run Babylon Knowledge Incremental.
+            </p>
+        </noscript>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script>
+        // ─── Immediate theme restore — no flash ───────────────────────────────
+        (function () {
+            var saved = localStorage.getItem('babylon-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+        })();
+
+        // ─── Theme API for Blazor JS interop ─────────────────────────────────
+        window.babylonTheme = {
+            toggle: function (isDark) {
+                document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+                localStorage.setItem('babylon-theme', isDark ? 'dark' : 'light');
+            },
+            apply: function (isDark) {
+                document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            },
+            getSaved: function () {
+                return localStorage.getItem('babylon-theme') || 'light';
+            }
+        };
+
+        // ─── Auto-dismiss loading screen once Blazor mounts ──────────────────
+        // Watches #app for Blazor's first DOM mutation (the component tree render).
+        // Falls back to a hard timeout of 12 s in case the observer misfires.
+        (function () {
+            var splash = document.getElementById('babylon-loading');
+            if (!splash) return;
+
+            function hideSplash() {
+                splash.classList.add('hidden');
+                setTimeout(function () { splash.style.display = 'none'; }, 450);
+            }
+
+            var observer = new MutationObserver(function (mutations) {
+                for (var m of mutations) {
+                    if (m.addedNodes.length > 0) {
+                        observer.disconnect();
+                        hideSplash();
+                        return;
+                    }
+                }
+            });
+
+            observer.observe(document.getElementById('app'), { childList: true });
+
+            // Hard fallback — hide after 12 s no matter what
+            setTimeout(function () {
+                observer.disconnect();
+                hideSplash();
+            }, 12000);
+        })();
+    </script>
+
+    <script src="_framework/blazor.webassembly.js"></script>
+</body>
+
+</html>

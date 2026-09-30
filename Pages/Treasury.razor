@@ -1,0 +1,112 @@
+@page "/treasury"
+@inject StudySessionState State
+@implements IDisposable
+
+<PageTitle>The Oracle's Treasury — Babylon Knowledge Incremental</PageTitle>
+
+<div class="treasury-page">
+    <!-- Header -->
+    <header class="treasury-header">
+        <div class="treasury-header-left">
+            <p class="treasury-eyebrow font-caps">Capsules of Wisdom &amp; Wonder</p>
+            <h1 class="treasury-title">The Oracle's Treasury</h1>
+            <p class="treasury-desc">Offer earned energy to reveal scholarly enhancements, study instruments, and immersive audio relics.</p>
+        </div>
+        <div class="treasury-capsule-display">
+            <p class="capsule-label">Available Energy</p>
+            <p class="capsule-total">
+                <span class="capsule-icon-lg" aria-hidden="true">✨</span>
+                <span id="treasury-capsule-count">@State.TotalCapsules.ToString("N0")</span>
+                <span class="capsule-unit">Capsules</span>
+            </p>
+        </div>
+    </header>
+
+    <!-- Banner grid -->
+    <div class="banners-grid">
+        @foreach (var banner in _banners)
+        {
+            <div class="banner-card card">
+                <!-- Banner header -->
+                <div class="banner-header">
+                    <div>
+                        <h2 class="banner-title">@banner.Title</h2>
+                        <span class="banner-series badge badge-common">Oracle Series</span>
+                    </div>
+                </div>
+
+                <!-- Banner visual -->
+                <div class="banner-visual" style="background: @banner.Gradient">
+                    <div class="banner-icon" aria-hidden="true">@banner.Icon</div>
+                    <p class="banner-curated">Curated by the Oracle</p>
+                </div>
+
+                <!-- Banner description -->
+                <p class="banner-desc">@banner.Description</p>
+
+                <hr class="divider" />
+
+                <!-- Rates -->
+                <div class="banner-rates">
+                    <div class="rate-item">
+                        <span class="rate-label">Capsule cost</span>
+                        <span class="rate-value">100</span>
+                    </div>
+                    <div class="rate-pills">
+                        <span class="rate-pill rate-rare">Rare 18%</span>
+                        <span class="rate-pill rate-epic">Epic 4.5%</span>
+                    </div>
+                </div>
+
+                <!-- Pull buttons -->
+                <div class="banner-actions">
+                    <button class="btn btn-primary banner-btn"
+                            id="pull-1x-@banner.Category"
+                            @onclick="() => Pull(banner.Category, 1)"
+                            disabled="@(State.TotalCapsules < 100)">
+                        Pull 1×
+                    </button>
+                    <button class="btn btn-primary banner-btn"
+                            id="pull-10x-@banner.Category"
+                            @onclick="() => Pull(banner.Category, 10)"
+                            disabled="@(State.TotalCapsules < 1000)">
+                        Pull 10×
+                    </button>
+                </div>
+                <p class="banner-guarantee">10× guarantees one Rare item or higher</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Pull result modal -->
+@if (State.ShowPullModal && State.LastPullResult is not null)
+{
+    <GachaPullModal Item="State.LastPullResult" OnClose="State.ClosePullModal" />
+}
+
+@code {
+    private record BannerInfo(string Title, string Category, string Icon, string Gradient, string Description);
+
+    private readonly List<BannerInfo> _banners = new()
+    {
+        new("Aesthetics",   "Aesthetics",   "🎨",
+            "linear-gradient(135deg, #1B2A4A 0%, #2E1B4A 100%)",
+            "Themes, frames, seals, and visual relics for your academy workspace."),
+        new("Study Tools",  "Study Tools",  "⚗️",
+            "linear-gradient(135deg, #1B3A4A 0%, #0F3A5D 100%)",
+            "Timers, hints, readers, and scholarly instruments to sharpen your focus."),
+        new("Audio Packs",  "Audio Packs",  "🎧",
+            "linear-gradient(135deg, #1A3A2A 0%, #0F2A1F 100%)",
+            "Soundscapes, oracle voices, and ceremonial cues for deep study immersion."),
+    };
+
+    protected override void OnInitialized()
+        => State.OnChange += StateHasChanged;
+
+    private void Pull(string category, int count)
+        => State.PullGacha(category, count);
+
+    public void Dispose()
+        => State.OnChange -= StateHasChanged;
+}

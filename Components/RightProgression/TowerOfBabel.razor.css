@@ -1,0 +1,191 @@
+.tower-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--color-card-border);
+    box-shadow: var(--shadow-md);
+    height: 100%;
+    min-height: 500px;
+}
+
+/* ─── Tower Visual ─── */
+.tower-visual {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    background:
+        linear-gradient(180deg,
+            #0D1B2A 0%,
+            #12263D 30%,
+            #1B3A5C 60%,
+            #0F2840 100%
+        );
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Architectural grid overlay — subtle stone lines */
+.tower-arch-lines {
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            transparent 0px,
+            transparent 38px,
+            rgba(212, 175, 55, 0.04) 38px,
+            rgba(212, 175, 55, 0.04) 40px
+        ),
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 48px,
+            rgba(212, 175, 55, 0.035) 48px,
+            rgba(212, 175, 55, 0.035) 50px
+        );
+    pointer-events: none;
+}
+
+/* CSS tower floors — pyramid of stacked layers */
+.tower-floors {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 2px;
+    padding-bottom: var(--space-md);
+}
+
+.tower-floor {
+    border-radius: 3px 3px 0 0;
+    background: linear-gradient(180deg,
+        rgba(212, 175, 55, 0.15) 0%,
+        rgba(27, 73, 101, 0.3) 100%
+    );
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-bottom: none;
+    transition: background var(--transition-base);
+}
+
+.tower-floor:hover {
+    background: linear-gradient(180deg,
+        rgba(212, 175, 55, 0.25) 0%,
+        rgba(27, 73, 101, 0.4) 100%
+    );
+}
+
+.floor-1 { width: 85%; height: 28px; }
+.floor-2 { width: 70%; height: 28px; }
+.floor-3 { width: 55%; height: 28px; }
+.floor-4 { width: 40%; height: 28px; }
+.floor-5 { width: 25%; height: 24px; border-radius: 3px 3px 0 0; }
+
+/* Center floor label */
+.tower-center-label {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+    text-align: center;
+}
+
+.tower-floor-label {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: rgba(212, 175, 55, 0.9);
+    letter-spacing: 0.1em;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+    animation: goldGlow 3s ease-in-out infinite;
+}
+
+.tower-floor-sub {
+    font-size: 0.7rem;
+    color: rgba(240, 232, 214, 0.4);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* Level badge */
+.tower-level-badge {
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-md);
+    padding: 0.3rem 0.75rem;
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: var(--radius-pill);
+    backdrop-filter: blur(6px);
+}
+
+.tower-level-label {
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-gold);
+    letter-spacing: 0.05em;
+}
+
+/* ─── Energy Panel ─── */
+.tower-panel {
+    padding: var(--space-md);
+    background: var(--color-card);
+    border-top: 1px solid var(--color-card-border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    transition: background var(--transition-slow);
+}
+
+.panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-sm);
+}
+
+.panel-eyebrow {
+    font-size: 0.65rem;
+    color: var(--color-text-muted);
+    letter-spacing: 0.1em;
+    margin-bottom: var(--space-xs);
+}
+
+.panel-energy {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1;
+}
+
+.panel-energy-sep {
+    color: var(--color-text-muted);
+    font-weight: 400;
+    margin: 0 2px;
+}
+
+.panel-energy-total {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+.panel-gem { font-size: 1.5rem; }
+
+/* Offer button */
+.offer-btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    letter-spacing: 0.03em;
+    animation: goldGlow 4s ease-in-out infinite;
+}

@@ -1,0 +1,100 @@
+@inject StudySessionState State
+@implements IDisposable
+
+<div class="streak-card card" aria-label="Daily streak tracker">
+    <div class="streak-header">
+        <h2 class="streak-title">Streak &amp; Tasks</h2>
+        <span class="streak-badge text-gold font-caps">Daily ascent</span>
+    </div>
+
+    <!-- SVG Hill — circles only; label is a CSS overlay -->
+    <div class="streak-hill-wrapper">
+        <svg class="streak-svg" viewBox="0 0 280 190" preserveAspectRatio="xMidYMid meet"
+             role="img" aria-hidden="true">
+            <!-- Hill fill -->
+            <path d="M 0 190 L 0 165 Q 70 130 140 90 Q 200 58 270 20 L 280 20 L 280 190 Z"
+                  fill="var(--color-lapis)" opacity="0.08" />
+            <!-- Hill ridge line -->
+            <path d="M 5 170 Q 75 132 142 92 Q 202 60 272 22"
+                  stroke="var(--color-lapis)" stroke-width="2.5" fill="none"
+                  stroke-linecap="round" opacity="0.5" />
+
+            @for (int i = 1; i <= 7; i++)
+            {
+                var nx = GetNotchX(i);
+                var ny = GetNotchY(i);
+                bool isCurrent = i == State.Streak.CurrentStreak;
+                bool isPast    = i <  State.Streak.CurrentStreak;
+
+                @if (isCurrent)
+                {
+                    <circle cx="@nx.ToString("F1")" cy="@ny.ToString("F1")" r="14"
+                            fill="var(--color-gold)" opacity="0.15" />
+                    <circle cx="@nx.ToString("F1")" cy="@ny.ToString("F1")" r="10"
+                            fill="var(--color-lapis)" stroke="var(--color-gold)" stroke-width="2" />
+                }
+                else if (isPast)
+                {
+                    <circle cx="@nx.ToString("F1")" cy="@ny.ToString("F1")" r="6"
+                            fill="var(--color-lapis)" stroke="var(--color-lapis)"
+                            stroke-width="2" opacity="0.5" />
+                }
+                else
+                {
+                    <circle cx="@nx.ToString("F1")" cy="@ny.ToString("F1")" r="6"
+                            fill="none" stroke="var(--color-lapis)"
+                            stroke-width="2" opacity="0.3" />
+                }
+            }
+        </svg>
+
+        <!-- Notch label — plain HTML div overlaid via absolute positioning -->
+        <div class="notch-label"
+             style="left:@(LabelLeftPct.ToString("F1"))%; top:@(LabelTopPct.ToString("F1"))%"
+             aria-label="Current notch: @State.Streak.CurrentStreak of 7">
+            NOTCH @State.Streak.CurrentStreak
+        </div>
+    </div>
+
+    <!-- Counters row -->
+    <div class="streak-counters" role="group" aria-label="Streak statistics">
+        <div class="counter-item">
+            <span class="counter-value">@State.Streak.CurrentStreak/7</span>
+            <span class="counter-label">Current Streak</span>
+        </div>
+        <div class="counter-divider" aria-hidden="true"></div>
+        <div class="counter-item">
+            <span class="counter-value">@State.Streak.TotalDays</span>
+            <span class="counter-label">Total Days</span>
+        </div>
+        <div class="counter-divider" aria-hidden="true"></div>
+        <div class="counter-item">
+            <span class="counter-value">@State.Streak.HighestStreak</span>
+            <span class="counter-label">Highest</span>
+        </div>
+    </div>
+
+    <!-- Log today button -->
+    <button class="btn btn-outline streak-advance-btn"
+            id="advance-streak-btn"
+            @onclick="State.IncrementStreak"
+            title="Log today's study session">
+        + Log Today
+    </button>
+</div>
+
+@code {
+    protected override void OnInitialized()
+        => State.OnChange += StateHasChanged;
+
+    // ViewBox 280x190 — diagonal from (10,168) to (264,24)
+    private static double GetNotchX(int n) => 10 + (n - 1) * (254.0 / 6);
+    private static double GetNotchY(int n) => 168 - (n - 1) * (144.0 / 6);
+
+    // Convert SVG coords to % of viewBox for CSS absolute positioning
+    private double LabelLeftPct =>  GetNotchX(State.Streak.CurrentStreak) / 280.0 * 100.0;
+    private double LabelTopPct  => (GetNotchY(State.Streak.CurrentStreak) + 16) / 190.0 * 100.0;
+
+    public void Dispose()
+        => State.OnChange -= StateHasChanged;
+}

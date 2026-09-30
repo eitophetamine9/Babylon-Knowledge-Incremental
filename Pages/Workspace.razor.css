@@ -1,0 +1,39 @@
+.workspace-grid {
+    display: grid;
+    grid-template-columns: var(--sidebar-left-width) 1fr var(--sidebar-right-width);
+    gap: var(--grid-gap);
+    padding: var(--grid-gap);
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    align-items: start;
+    min-height: calc(100vh - var(--nav-height));
+}
+
+.workspace-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--grid-gap);
+}
+
+/* Right column stretches full height for the Tower card */
+.col-right {
+    position: sticky;
+    top: calc(var(--nav-height) + var(--grid-gap));
+    max-height: calc(100vh - var(--nav-height) - var(--grid-gap) * 2);
+}
+
+/* Responsive: hide right column on smaller screens */
+@media (max-width: 1280px) {
+    .workspace-grid {
+        grid-template-columns: 280px 1fr;
+    }
+    .col-right { display: none; }
+}
+
+@media (max-width: 860px) {
+    .workspace-grid {
+        grid-template-columns: 1fr;
+        padding: var(--space-md);
+        gap: var(--space-md);
+    }
+}

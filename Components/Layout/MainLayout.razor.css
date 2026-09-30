@@ -1,0 +1,13 @@
+.layout-root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--color-bg);
+    transition: background-color var(--transition-slow);
+}
+
+.layout-main {
+    flex: 1;
+    padding-top: var(--nav-height);
+    background-color: var(--color-bg);
+}
