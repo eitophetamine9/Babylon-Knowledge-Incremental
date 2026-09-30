@@ -40,7 +40,7 @@ dotnet build .\BabylonKnowledgeIncremental.csproj
 
 - `/` or `/workspace` — study workspace
 - `/login` — login and registration interface (to be added)
-- `/treasury` — reward banners and collection pulls
+- `/treasury` — reward banners and collection pulls (to be added)
 
 ## Technology
 
