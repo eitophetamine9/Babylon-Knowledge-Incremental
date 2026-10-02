@@ -1,49 +1,94 @@
 # Babylon Knowledge Incremental
 
-Babylon Knowledge Incremental is a Blazor WebAssembly study-app prototype built with C# and .NET 10. Its academy-inspired workspace brings flashcards, quizzes, study tasks, streaks, and a gamified progression system together in one interface. (Prototype)
+Babylon Knowledge Incremental is a gamified study web application built with **Blazor WebAssembly (.NET 10)** and styled using **Tailwind CSS**. Its academy-inspired workspace combines active recall flashcards, multiple-choice quizzes, daily streak progression with an animated Sisyphus character, an ancient hourglass focus timer, and an interactive scroll library catalog into a unified Hellenistic-Babylonian learning realm.
 
-## Features
+---
 
-- **Study workspace:** Switch between flashcard and multiple-choice quiz modes, reveal answers, submit responses, and navigate study content.
-- **PDF study-set interface:** Choose a PDF from the file browser or select one of the built-in sample documents.
-- **Study planning:** Track a daily task list and study streak.
-- **Progression and rewards:** Offer energy to progress the Tower of Babel and spend earned capsules on collectible items in the Oracle's Treasury.
-- **Theme control:** Switch between light and dark themes.
-- **Login and registration screens:** Explore the academy-themed account interface.
+## Key Features
 
-## Current prototype limitations
+- **🏛️ The Great Scroll Library (`/library`):**
+  - Search and filter curated codices across Computer Science, Ancient Mesopotamia, Algorithms & Logic, and Philosophy.
+  - Interactive preview modal with sample questions.
+  - One-click study loading into your active workspace.
 
-This project is a front-end prototype. It does not currently include a server, account authentication, or persistent storage. The PDF interface records the selected file's name and size, then loads built-in sample study content based on the filename; it does not parse PDF contents or export study materials to PDF. The account forms are visual/demo flows and do not create or authenticate accounts.
+- **⛰️ Sisyphus Daily Ascent:**
+  - Dynamic vector character sprite of Sisyphus pushing the great stone boulder along the mountain incline.
+  - Smooth tracking across 7 milestone notches (from *Foot of the Mountain* to the *Altar of Mastery*).
+  - Milestone particle effects and 7-day streak cycle capsule bonuses.
 
-## Requirements
+- **⏳ Ancient Hourglass Focus Timer:**
+  - Built-in Pomodoro focus timer with presets for 25-minute deep study, 15-minute sprint, and 5-minute review.
+  - Live sand-ticking animation and bonus capsule bounty rewards upon completing focus intervals.
+
+- **🗃️ Active Study Deck & Quiz Evaluation:**
+  - 3D interactive flip cards with keyboard navigation (`Space` / `Enter` to reveal, `Arrow Right` for next).
+  - Multiple-choice quiz trial with instant answer validation, comprehensive score evaluations, accuracy calculation, and claimable capsule bounties.
+
+- **📄 Core PDF Study-Set Utility:**
+  - File picker accepting `.pdf` documents from your local file system.
+  - One-click preset scrolls (*C# Basic Syntax*, *Babylonian History & Architecture*, *Algorithms & Complexity*) with dynamic study-set generation.
+  - Quick-switch and clear file actions.
+
+- **💎 The Oracle's Treasury (`/treasury`):**
+  - Gacha pull banners across Aesthetics, Study Tools, and Audio Packs.
+  - Multi-tier rarity system (Common, Rare, Epic) with ceremonial pull animations.
+
+- **🌓 Hellenistic-Babylonian Design System:**
+  - Custom color palette: Lapis Lazuli (`#1B4965`), Temple Gold (`#D4AF37`), Sandstone (`#F4EEDD`), and Marble White (`#F9F8F6`).
+  - Typography: Classical `Cinzel` serif headings with modern `Inter` body text.
+  - Seamless zero-flash light and dark theme toggling.
+
+---
+
+## Application Routes
+
+- `/` or `/workspace` — Primary study workspace (Sisyphus Ascent, Todo List, PDF Dropzone, Study Deck, and Tower Progression)
+- `/library` — The Great Scroll Library with real-time search, category filters, and one-click study loading
+- `/treasury` — Oracle's Treasury for gacha capsule pulls and collection inventory
+- `/login` — Classical academy scholar login and registration interface
+
+---
+
+## Technology Stack
+
+- **Framework:** Blazor WebAssembly (.NET 10)
+- **Language:** C# 13 (nullable reference types, scoped dependency injection)
+- **Styling:** Tailwind CSS v3 with custom Hellenistic-Babylonian theme extensions
+- **Assets:** Custom SVG vector character sprites, 3D CSS transforms, and CSS grid layouts
+
+---
+
+## Getting Started
+
+### Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [Node.js](https://nodejs.org/) (v18+ for compiling Tailwind CSS)
 
-## Run locally
+### Running Locally
 
-From the repository root, restore dependencies and start the Blazor development server:
+1. **Restore and run the Blazor WebAssembly app:**
+   ```powershell
+   dotnet restore
+   dotnet run --project .\BabylonKnowledgeIncremental.csproj
+   ```
+
+2. Open the URL printed in the terminal (typically `http://localhost:5000`) in your browser.
+
+### Rebuilding Tailwind CSS (Optional)
 
 ```powershell
-dotnet restore
-dotnet run --project .\BabylonKnowledgeIncremental.csproj
+npm install
+npm run build:css
 ```
 
-Open the local URL printed by the .NET CLI in your browser.
-
-To build without starting the development server:
-
+To watch for changes during development:
 ```powershell
-dotnet build .\BabylonKnowledgeIncremental.csproj
+npm run watch:css
 ```
 
-## Application routes
+---
 
-- `/` or `/workspace` — study workspace
-- `/login` — login and registration interface (to be added)
-- `/treasury` — reward banners and collection pulls (to be added)
+## License & Academic Notice
 
-## Technology
-
-- Blazor WebAssembly
-- C# with nullable reference types and implicit usings enabled
-- .NET 10
+Developed as an educational prototype exploring gamified cognitive learning environments and incremental progression systems.
