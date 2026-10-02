@@ -2,55 +2,55 @@
 @inject NavigationManager Nav
 @implements IDisposable
 
-<nav class="navbar" role="navigation" aria-label="Main navigation">
+<nav class="fixed top-0 left-0 right-0 h-16 z-50 flex items-center justify-between px-6 bg-[var(--color-card)] border-b border-[var(--color-card-border)] shadow-sm backdrop-blur-md transition-colors duration-300" role="navigation" aria-label="Main navigation">
     <!-- Brand -->
-    <div class="nav-brand" @onclick='() => Nav.NavigateTo("/workspace")'>
-        <div class="nav-logo" aria-hidden="true">🏛️</div>
-        <div class="nav-brand-text">
-            <span class="nav-title">Babylon</span>
-            <span class="nav-subtitle">Knowledge Incremental</span>
+    <div class="flex items-center gap-3 cursor-pointer py-1.5 px-3 rounded-md border border-[var(--color-card-border)] hover:border-gold hover:bg-gold-light transition-all duration-200 select-none min-w-[200px]" @onclick='() => Nav.NavigateTo("/workspace")'>
+        <div class="text-2xl leading-none" aria-hidden="true">🏛️</div>
+        <div class="flex flex-col leading-tight">
+            <span class="font-heading text-sm font-bold tracking-wider text-[var(--color-text-primary)] uppercase">Babylon</span>
+            <span class="text-[0.625rem] font-semibold text-gold tracking-widest uppercase">Knowledge Incremental</span>
         </div>
     </div>
 
-    <!-- Center tabs (evenly spaced) -->
-    <div class="nav-tabs" role="tablist">
-        <NavLink class="nav-tab" href="/workspace" Match="NavLinkMatch.Prefix" role="tab">
+    <!-- Center tabs (evenly spaced with Tailwind) -->
+    <div class="nav-tabs flex-1 flex items-center justify-center gap-10 sm:gap-14" role="tablist">
+        <NavLink class="nav-tab inline-flex items-center gap-2 px-5 py-2 rounded-md font-heading text-sm font-semibold tracking-wider uppercase text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-gold-light transition-all duration-200 relative" href="/workspace" Match="NavLinkMatch.Prefix" role="tab">
             Workspace
         </NavLink>
-        <NavLink class="nav-tab" href="/treasury" Match="NavLinkMatch.Prefix" role="tab">
+        <NavLink class="nav-tab inline-flex items-center gap-2 px-5 py-2 rounded-md font-heading text-sm font-semibold tracking-wider uppercase text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-gold-light transition-all duration-200 relative" href="/treasury" Match="NavLinkMatch.Prefix" role="tab">
             Treasury
         </NavLink>
-        <NavLink class="nav-tab nav-tab-disabled" href="#" role="tab" aria-disabled="true" title="Archives unlock in a future epoch">
-            Library <span class="nav-tab-tag">Soon</span>
+        <NavLink class="nav-tab nav-tab-disabled inline-flex items-center gap-2 px-5 py-2 rounded-md font-heading text-sm font-semibold tracking-wider uppercase text-[var(--color-text-muted)] opacity-60 cursor-default relative" href="#" role="tab" aria-disabled="true" title="Archives unlock in a future epoch">
+            Library <span class="nav-tab-tag text-[0.6rem] font-bold tracking-widest px-1.5 py-0.5 rounded-full bg-gold-light text-gold-dark dark:text-gold border border-gold/40 uppercase">Soon</span>
         </NavLink>
     </div>
 
     <!-- Right controls -->
-    <div class="nav-controls">
+    <div class="flex items-center gap-3 min-w-[200px] justify-end">
         <!-- Capsule counter -->
-        <div class="nav-capsules" title="Available capsules">
-            <span class="capsule-icon" aria-hidden="true">✨</span>
-            <span class="capsule-count" id="capsule-counter">@State.TotalCapsules.ToString("N0")</span>
+        <div class="flex items-center gap-1.5 py-1.5 px-3 bg-gold-light border border-gold/40 rounded-full transition-all duration-200" title="Available capsules">
+            <span class="text-base" aria-hidden="true">✨</span>
+            <span class="font-body text-sm font-bold text-gold-dark dark:text-gold tracking-wide" id="capsule-counter">@State.TotalCapsules.ToString("N0")</span>
         </div>
 
         <!-- Dark mode toggle -->
-        <button class="nav-theme-btn btn btn-ghost"
+        <button class="nav-theme-btn text-lg p-2 rounded-md hover:bg-lapis-light dark:hover:bg-gold-light transition-all duration-200 active:scale-95"
                 id="theme-toggle-btn"
                 @onclick="ToggleTheme"
                 title="@(State.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")"
                 aria-label="Toggle dark mode">
             @if (State.IsDarkMode)
             {
-                <span class="theme-icon" aria-hidden="true">☀️</span>
+                <span class="block leading-none" aria-hidden="true">☀️</span>
             }
             else
             {
-                <span class="theme-icon" aria-hidden="true">🌙</span>
+                <span class="block leading-none" aria-hidden="true">🌙</span>
             }
         </button>
 
         <!-- User avatar -->
-        <div class="nav-avatar" title="Scholar profile" aria-label="User avatar">AS</div>
+        <div class="w-9 h-9 bg-lapis text-white rounded-full flex items-center justify-center text-xs font-bold tracking-wider cursor-pointer hover:bg-gold hover:text-lapis-dark transition-all duration-200 hover:scale-105 shadow-sm" title="Scholar profile" aria-label="User avatar">AS</div>
     </div>
 </nav>
 

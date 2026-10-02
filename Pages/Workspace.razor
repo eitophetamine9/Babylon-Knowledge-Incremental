@@ -5,45 +5,45 @@
 
 <PageTitle>Workspace — Babylon Knowledge Incremental</PageTitle>
 
-<div class="workspace-grid">
+<div class="grid grid-cols-1 lg:grid-cols-[300px_1fr_270px] gap-6 items-start">
     <!-- Column 1: Left Sidebar -->
-    <aside class="workspace-col col-left" aria-label="Streak and tasks">
+    <aside class="flex flex-col gap-6" aria-label="Streak and tasks">
         <ErrorBoundary>
             <ChildContent><SisyphusStreak /></ChildContent>
             <ErrorContent Context="ex">
-                <div class="component-error card">⚠️ Streak panel failed to load.</div>
+                <div class="p-4 rounded-lg bg-[var(--color-card)] border border-red-400 text-sm text-red-500">⚠️ Streak panel failed to load.</div>
             </ErrorContent>
         </ErrorBoundary>
         <ErrorBoundary>
             <ChildContent><TodoList /></ChildContent>
             <ErrorContent Context="ex">
-                <div class="component-error card">⚠️ Task list failed to load.</div>
+                <div class="p-4 rounded-lg bg-[var(--color-card)] border border-red-400 text-sm text-red-500">⚠️ Task list failed to load.</div>
             </ErrorContent>
         </ErrorBoundary>
     </aside>
 
     <!-- Column 2: Center workspace -->
-    <section class="workspace-col col-center" aria-label="Study workspace">
+    <section class="flex flex-col gap-6" aria-label="Study workspace">
         <ErrorBoundary>
             <ChildContent><PdfDropzone /></ChildContent>
             <ErrorContent Context="ex">
-                <div class="component-error card">⚠️ PDF dropzone failed to load.</div>
+                <div class="p-4 rounded-lg bg-[var(--color-card)] border border-red-400 text-sm text-red-500">⚠️ PDF dropzone failed to load.</div>
             </ErrorContent>
         </ErrorBoundary>
         <ErrorBoundary>
             <ChildContent><StudyDeck /></ChildContent>
             <ErrorContent Context="ex">
-                <div class="component-error card">⚠️ Study deck failed to load.</div>
+                <div class="p-4 rounded-lg bg-[var(--color-card)] border border-red-400 text-sm text-red-500">⚠️ Study deck failed to load.</div>
             </ErrorContent>
         </ErrorBoundary>
     </section>
 
     <!-- Column 3: Right progression -->
-    <aside class="workspace-col col-right" aria-label="Tower progression">
+    <aside class="flex flex-col gap-6" aria-label="Tower progression">
         <ErrorBoundary>
             <ChildContent><TowerOfBabel /></ChildContent>
             <ErrorContent Context="ex">
-                <div class="component-error card">⚠️ Tower failed to load.</div>
+                <div class="p-4 rounded-lg bg-[var(--color-card)] border border-red-400 text-sm text-red-500">⚠️ Tower failed to load.</div>
             </ErrorContent>
         </ErrorBoundary>
     </aside>
