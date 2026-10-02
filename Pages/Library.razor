@@ -1,0 +1,397 @@
+@page "/library"
+@inject StudySessionState State
+@inject NavigationManager Nav
+@implements IDisposable
+
+<PageTitle>The Great Library — Babylon Knowledge Incremental</PageTitle>
+
+<div class="flex flex-col gap-8 max-w-[1400px] mx-auto pb-16">
+    <!-- Hero Header -->
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 sm:p-8 bg-[var(--color-card)] rounded-xl border border-[var(--color-card-border)] shadow-card relative overflow-hidden transition-colors duration-300">
+        <div class="flex flex-col gap-2 max-w-2xl z-10">
+            <div class="inline-flex items-center gap-2 text-xs font-bold text-gold tracking-widest uppercase">
+                <span>🏛️</span>
+                <span>The Royal Archive of Ashurbanipal &amp; Babylon</span>
+            </div>
+            <h1 class="font-heading text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">
+                The Great Scroll Library
+            </h1>
+            <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">
+                Browse our curated codices and knowledge scrolls. Selecting any scroll immediately loads its flashcards, study deck, and quiz into your active workspace.
+            </p>
+        </div>
+
+        <!-- Quick Status Card -->
+        <div class="flex items-center gap-4 bg-[var(--color-bg-alt)] border border-[var(--color-card-border)] rounded-lg p-4 z-10">
+            <div class="text-3xl">📜</div>
+            <div class="flex flex-col">
+                <span class="text-xs text-[var(--color-text-muted)] uppercase tracking-wider">Active Workspace Scroll</span>
+                <span class="font-heading text-sm font-bold text-gold-dark dark:text-gold">
+                    @(State.LoadedFileName ?? "No scroll selected")
+                </span>
+                <span class="text-[0.7rem] text-[var(--color-text-muted)]">
+                    @State.Flashcards.Count Flashcards · @State.QuizQuestions.Count Quiz Questions
+                </span>
+            </div>
+        </div>
+
+        <!-- Decorative background emblem -->
+        <div class="absolute -right-8 -bottom-10 text-9xl opacity-5 select-none pointer-events-none" aria-hidden="true">
+            📚
+        </div>
+    </header>
+
+    <!-- Search & Filter Controls -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <!-- Category Filter Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+            @foreach (var cat in _categories)
+            {
+                bool isSelected = selectedCategory == cat;
+                <button type="button"
+                        class="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 border @(isSelected
+                            ? "bg-gold text-black border-gold shadow-sm font-bold"
+                            : "bg-[var(--color-card)] text-[var(--color-text-secondary)] border-[var(--color-card-border)] hover:border-gold hover:text-[var(--color-text-primary)]")"
+                        @onclick="() => selectedCategory = cat">
+                    @cat
+                </button>
+            }
+        </div>
+
+        <!-- Search Input -->
+        <div class="relative w-full sm:w-80">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-muted)]" aria-hidden="true">🔍</span>
+            <input type="text"
+                   class="w-full pl-10 pr-4 py-2 text-sm bg-[var(--color-card)] text-[var(--color-text-primary)] border border-[var(--color-card-border)] rounded-lg focus:outline-none focus:border-gold transition-colors duration-200 placeholder:text-[var(--color-text-muted)]"
+                   placeholder="Search scrolls, authors, tags..."
+                   @bind="searchQuery"
+                   @bind:event="oninput" />
+        </div>
+    </div>
+
+    <!-- Scroll Catalog Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @foreach (var scroll in FilteredScrolls)
+        {
+            bool isCurrent = State.LoadedFileName == scroll.FileName;
+
+            <div class="flex flex-col justify-between p-5 bg-[var(--color-card)] rounded-xl border @(isCurrent ? "border-gold shadow-gold ring-1 ring-gold/50" : "border-[var(--color-card-border)] shadow-card") hover:border-gold/80 transition-all duration-200 group">
+                <!-- Card Header -->
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl p-2 rounded-lg bg-[var(--color-bg-alt)] border border-[var(--color-card-border)]">@scroll.Icon</span>
+                            <div class="flex flex-col">
+                                <span class="text-[0.68rem] font-bold tracking-wider uppercase text-gold">@scroll.Category</span>
+                                <span class="text-[0.7rem] text-[var(--color-text-muted)]">~@scroll.EstimatedMinutes min study</span>
+                            </div>
+                        </div>
+                        <span class="text-[0.65rem] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full @GetDifficultyBadgeClass(scroll.Difficulty)">
+                            @scroll.Difficulty
+                        </span>
+                    </div>
+
+                    <!-- Title & Description -->
+                    <div class="flex flex-col gap-1.5">
+                        <h2 class="font-heading text-base font-bold text-[var(--color-text-primary)] group-hover:text-gold transition-colors">
+                            @scroll.Title
+                        </h2>
+                        <p class="text-xs text-[var(--color-text-muted)] line-clamp-2 leading-relaxed">
+                            @scroll.Description
+                        </p>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="flex flex-wrap gap-1.5 pt-1">
+                        @foreach (var tag in scroll.Tags)
+                        {
+                            <span class="text-[0.65rem] px-2 py-0.5 rounded bg-[var(--color-lapis-light)] text-lapis dark:text-blue-300 font-medium border border-lapis/20">
+                                @tag
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Card Footer & Action Buttons -->
+                <div class="flex flex-col gap-3 pt-5 mt-4 border-t border-[var(--color-card-border)]">
+                    <div class="flex items-center justify-between text-xs text-[var(--color-text-muted)]">
+                        <span>🗃️ @scroll.FlashcardCount flashcards</span>
+                        <span>❓ @scroll.QuizQuestionCount questions</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button"
+                                class="py-2 px-3 rounded-md text-xs font-semibold text-[var(--color-text-secondary)] border border-[var(--color-card-border)] hover:border-gold hover:text-[var(--color-text-primary)] transition-all flex items-center justify-center gap-1.5"
+                                @onclick="() => OpenPreview(scroll)">
+                            <span>👁️</span> Preview
+                        </button>
+
+                        <button type="button"
+                                class="py-2 px-3 rounded-md text-xs font-bold font-heading tracking-wide transition-all duration-200 flex items-center justify-center gap-1 @(isCurrent
+                                    ? "bg-green-700 text-white cursor-default"
+                                    : "bg-lapis hover:bg-lapis-dark text-white hover:shadow-md")"
+                                @onclick="() => SelectAndStudy(scroll)">
+                            @if (isCurrent)
+                            {
+                                <span>✓ Loaded</span>
+                            }
+                            else
+                            {
+                                <span>Study ➔</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!FilteredScrolls.Any())
+    {
+        <div class="flex flex-col items-center justify-center p-12 text-center bg-[var(--color-card)] rounded-xl border border-[var(--color-card-border)]">
+            <span class="text-4xl mb-2">📜</span>
+            <h3 class="font-heading text-lg font-bold text-[var(--color-text-primary)]">No Scrolls Found</h3>
+            <p class="text-xs text-[var(--color-text-muted)] max-w-sm mt-1">
+                No archived scrolls matched your search query "@searchQuery". Try selecting another category or clearing your query.
+            </p>
+            <button class="mt-4 px-4 py-2 rounded-md bg-gold-light text-gold-dark dark:text-gold border border-gold/40 text-xs font-bold font-heading"
+                    @onclick='() => { searchQuery = ""; selectedCategory = "All Scrolls"; }'>
+                Reset Search Filters
+            </button>
+        </div>
+    }
+</div>
+
+<!-- Preview Modal -->
+@if (previewScroll is not null)
+{
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"
+         role="dialog" aria-modal="true" aria-labelledby="preview-modal-title">
+        <div class="bg-[var(--color-card)] border border-gold/60 rounded-xl max-w-lg w-full p-6 shadow-2xl flex flex-col gap-4 relative">
+            <button class="absolute top-4 right-4 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] text-lg p-1 leading-none"
+                    @onclick="ClosePreview"
+                    aria-label="Close preview">
+                ✕
+            </button>
+
+            <div class="flex items-center gap-3">
+                <span class="text-3xl p-2 rounded-lg bg-[var(--color-bg-alt)] border border-gold/30">@previewScroll.Icon</span>
+                <div class="flex flex-col">
+                    <span class="text-xs font-bold text-gold uppercase tracking-wider">@previewScroll.Category</span>
+                    <h3 id="preview-modal-title" class="font-heading text-lg font-bold text-[var(--color-text-primary)]">
+                        @previewScroll.Title
+                    </h3>
+                </div>
+            </div>
+
+            <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">
+                @previewScroll.Description
+            </p>
+
+            <div class="flex flex-col gap-2 pt-2 border-t border-[var(--color-card-border)]">
+                <span class="text-xs font-bold text-[var(--color-text-primary)] uppercase tracking-wider">Sample Questions Covered:</span>
+                <ul class="flex flex-col gap-1.5">
+                    @foreach (var q in previewScroll.SampleQuestions)
+                    {
+                        <li class="text-xs text-[var(--color-text-secondary)] flex items-start gap-2 bg-[var(--color-bg-alt)] p-2 rounded border border-[var(--color-card-border)]">
+                            <span class="text-gold">✦</span>
+                            <span>@q</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3 mt-2 border-t border-[var(--color-card-border)]">
+                <button type="button"
+                        class="px-4 py-2 rounded-md text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+                        @onclick="ClosePreview">
+                    Close
+                </button>
+                <button type="button"
+                        class="px-5 py-2 rounded-md bg-lapis hover:bg-lapis-dark text-white font-heading text-xs font-bold tracking-wider uppercase transition-all shadow-sm"
+                        @onclick="() => { SelectAndStudy(previewScroll); ClosePreview(); }">
+                    Load &amp; Study Now ➔
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private string selectedCategory = "All Scrolls";
+    private string searchQuery = "";
+    private ScrollItem? previewScroll = null;
+
+    private readonly List<string> _categories = new()
+    {
+        "All Scrolls",
+        "Computer Science",
+        "Ancient Mesopotamia",
+        "Algorithms & Logic",
+        "Philosophy"
+    };
+
+    private readonly List<ScrollItem> _catalog = new()
+    {
+        new()
+        {
+            Title = "C# Basic Syntax & Object-Oriented Principles",
+            FileName = "C# Basic Syntax.pdf",
+            FileSizeBytes = 2_400_000,
+            Category = "Computer Science",
+            Difficulty = "Novice",
+            Icon = "💻",
+            Description = "Foundational syntax of modern C#, covering nullable reference types, classes, interfaces, delegates, and LINQ queries.",
+            Tags = new() { "C#", "OOP", ".NET", "LINQ" },
+            EstimatedMinutes = 20,
+            FlashcardCount = 5,
+            QuizQuestionCount = 3,
+            SampleQuestions = new()
+            {
+                "What is an interface in C# and how does it differ from abstract classes?",
+                "How does async/await enable non-blocking operations?",
+                "Explain the purpose of LINQ query syntax."
+            }
+        },
+        new()
+        {
+            Title = "Babylonian History, Architecture & Code of Hammurabi",
+            FileName = "Babylonian History & Architecture.pdf",
+            FileSizeBytes = 4_100_000,
+            Category = "Ancient Mesopotamia",
+            Difficulty = "Adept",
+            Icon = "🏛️",
+            Description = "Chronicles of the Neo-Babylonian empire, monument construction of the Etemenanki Ziggurat, Ishtar Gate, and ancient legal codes.",
+            Tags = new() { "Mesopotamia", "Hammurabi", "Ziggurat", "History" },
+            EstimatedMinutes = 25,
+            FlashcardCount = 4,
+            QuizQuestionCount = 3,
+            SampleQuestions =
+            {
+                "What was the religious function of a Babylonian ziggurat?",
+                "Which deity was the chief patron god of Babylon?",
+                "Describe the construction and blue glazed bricks of the Ishtar Gate."
+            }
+        },
+        new()
+        {
+            Title = "Algorithms, Time Complexity & Data Structures",
+            FileName = "Algorithms & Complexity.pdf",
+            FileSizeBytes = 3_200_000,
+            Category = "Algorithms & Logic",
+            Difficulty = "Master",
+            Icon = "⚡",
+            Description = "Rigorous breakdown of asymptotic runtime analysis (Big-O, Omega, Theta), divide-and-conquer sorting, hash collisions, and trees.",
+            Tags = new() { "Big-O", "Sorting", "Hash Tables", "Trees" },
+            EstimatedMinutes = 30,
+            FlashcardCount = 3,
+            QuizQuestionCount = 2,
+            SampleQuestions =
+            {
+                "What is the average vs worst-case complexity of QuickSort?",
+                "How does binary search achieve O(log n) efficiency?",
+                "Explain how hash collisions are resolved via open addressing vs chaining."
+            }
+        },
+        new()
+        {
+            Title = "Stoic Ethics & Sisyphus's Indomitable Resolve",
+            FileName = "Philosophy of Epictetus & Sisyphus.pdf",
+            FileSizeBytes = 1_850_000,
+            Category = "Philosophy",
+            Difficulty = "Adept",
+            Icon = "🌿",
+            Description = "The philosophy of daily incremental discipline through the myth of Sisyphus, Albert Camus, Epictetus's Dichotomy of Control, and Seneca.",
+            Tags = new() { "Stoicism", "Epictetus", "Sisyphus", "Discipline" },
+            EstimatedMinutes = 15,
+            FlashcardCount = 4,
+            QuizQuestionCount = 2,
+            SampleQuestions =
+            {
+                "What is the Dichotomy of Control in Stoic philosophy?",
+                "Why must we imagine Sisyphus happy according to Camus?",
+                "How does incremental progress prevent burnout and despair?"
+            }
+        },
+        new()
+        {
+            Title = "Advanced Design Patterns & Architecture",
+            FileName = "Software Architecture & Patterns.pdf",
+            FileSizeBytes = 3_800_000,
+            Category = "Computer Science",
+            Difficulty = "Master",
+            Icon = "⚙️",
+            Description = "Deep dive into Gang of Four structural and behavioral patterns: Factory, Observer, Decorator, Strategy, and Dependency Injection.",
+            Tags = new() { "Architecture", "Design Patterns", "SOLID", "DI" },
+            EstimatedMinutes = 35,
+            FlashcardCount = 5,
+            QuizQuestionCount = 3,
+            SampleQuestions =
+            {
+                "Explain the Open/Closed Principle with an interface example.",
+                "When should you prefer the Strategy pattern over inheritance?",
+                "How does Dependency Injection decouple services in Blazor?"
+            }
+        },
+        new()
+        {
+            Title = "Cuneiform Script & Babylonian Mathematical Astronomy",
+            FileName = "Cuneiform & Babylonian Astronomy.pdf",
+            FileSizeBytes = 2_900_000,
+            Category = "Ancient Mesopotamia",
+            Difficulty = "Master",
+            Icon = "✨",
+            Description = "The sexagesimal (base-60) numerical system, astronomical diaries tracking planetary movements, and clay tablet scribal practices.",
+            Tags = new() { "Astronomy", "Cuneiform", "Base-60", "Scribes" },
+            EstimatedMinutes = 20,
+            FlashcardCount = 4,
+            QuizQuestionCount = 2,
+            SampleQuestions =
+            {
+                "Why did Babylonian astronomers utilize a base-60 sexagesimal system?",
+                "How did clay tablets preserve astronomical observations for millennia?",
+                "What was the role of the Babylonian ummânū (master scholars)?"
+            }
+        }
+    };
+
+    private IEnumerable<ScrollItem> FilteredScrolls => _catalog.Where(s =>
+    {
+        bool matchCat = selectedCategory == "All Scrolls" || s.Category == selectedCategory;
+        bool matchSearch = string.IsNullOrWhiteSpace(searchQuery) ||
+                           s.Title.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                           s.Description.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                           s.Tags.Any(t => t.Contains(searchQuery, StringComparison.OrdinalIgnoreCase));
+        return matchCat && matchSearch;
+    });
+
+    private static string GetDifficultyBadgeClass(string diff) => diff switch
+    {
+        "Novice" => "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300 border border-green-300/40",
+        "Adept"  => "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-300/40",
+        "Master" => "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300 border border-purple-300/40",
+        _        => "bg-gray-100 text-gray-800"
+    };
+
+    private void SelectAndStudy(ScrollItem scroll)
+    {
+        State.SimulateFileLoad(scroll.FileName, scroll.FileSizeBytes);
+        Nav.NavigateTo("/workspace");
+    }
+
+    private void OpenPreview(ScrollItem scroll)
+    {
+        previewScroll = scroll;
+    }
+
+    private void ClosePreview()
+    {
+        previewScroll = null;
+    }
+
+    protected override void OnInitialized()
+        => State.OnChange += StateHasChanged;
+
+    public void Dispose()
+        => State.OnChange -= StateHasChanged;
+}
