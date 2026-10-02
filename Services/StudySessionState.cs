@@ -39,9 +39,10 @@ public class StudySessionState
     // ─── Currency ────────────────────────────────────────────────────────────
     public int TotalCapsules { get; private set; } = 1280;
 
-    private void AwardCapsules(int amount)
+    public void AwardCapsules(int amount)
     {
         TotalCapsules += amount;
+        NotifyStateChanged();
     }
 
     // ─── Streak ──────────────────────────────────────────────────────────────
@@ -157,6 +158,16 @@ public class StudySessionState
     {
         IsFlashcardMode = false;
         CurrentCardIndex = 0;
+        NotifyStateChanged();
+    }
+
+    public void ResetQuiz()
+    {
+        CurrentCardIndex = 0;
+        foreach (var q in QuizQuestions)
+        {
+            q.SelectedAnswerIndex = -1;
+        }
         NotifyStateChanged();
     }
 
