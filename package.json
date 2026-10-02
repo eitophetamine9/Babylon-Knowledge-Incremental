@@ -1,0 +1,12 @@
+{
+  "name": "babylon-knowledge-incremental",
+  "version": "1.0.0",
+  "description": "Gamified Hellenistic-Babylonian study platform with Tailwind CSS and Blazor",
+  "scripts": {
+    "build:css": "tailwindcss -i ./Styles/input.css -o ./wwwroot/css/tailwind.css --minify",
+    "watch:css": "tailwindcss -i ./Styles/input.css -o ./wwwroot/css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}
