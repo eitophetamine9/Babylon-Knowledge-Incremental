@@ -1,85 +1,171 @@
 @inject StudySessionState State
 @implements IDisposable
 
-<div class="streak-card card" aria-label="Daily streak tracker">
-    <div class="streak-header">
-        <h2 class="streak-title">Streak &amp; Tasks</h2>
-        <span class="streak-badge text-gold font-caps">Daily ascent</span>
+<div class="p-4 flex flex-col gap-4 bg-[var(--color-card)] rounded-lg border border-[var(--color-card-border)] shadow-card transition-colors duration-300" aria-label="Daily streak tracker">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="font-heading text-base font-bold text-[var(--color-text-primary)]">Streak &amp; Ascent</h2>
+        <span class="text-[0.68rem] font-bold tracking-widest text-gold uppercase px-2 py-0.5 rounded-full bg-gold-light border border-gold/30">
+            @if (State.Streak.CurrentStreak >= 7)
+            {
+                <span>Peak Reached ✨</span>
+            }
+            else
+            {
+                <span>Day @State.Streak.CurrentStreak of 7</span>
+            }
+        </span>
     </div>
 
-    <!-- SVG Hill — circles only; label is a CSS overlay -->
-    <div class="streak-hill-wrapper">
-        <svg class="streak-svg" viewBox="0 0 280 190" preserveAspectRatio="xMidYMid meet"
-             role="img" aria-hidden="true">
-            <!-- Hill fill -->
-            <path d="M 0 190 L 0 165 Q 70 130 140 90 Q 200 58 270 20 L 280 20 L 280 190 Z"
+    <!-- Mountain Incline with Sisyphus Asset Sprite & Boulder -->
+    <div class="relative bg-[var(--color-bg-alt)] rounded-md border border-[var(--color-card-border)] overflow-visible p-2">
+        <svg class="w-full h-auto block select-none" viewBox="0 0 280 190" preserveAspectRatio="xMidYMid meet"
+             role="img" aria-label="Sisyphus pushing boulder up the mountain">
+            <defs>
+                <!-- Boulder stone realistic gradient -->
+                <radialGradient id="boulderGrad" cx="35%" cy="35%" r="65%">
+                    <stop offset="0%" stop-color="#D9C9A8" />
+                    <stop offset="45%" stop-color="#968565" />
+                    <stop offset="85%" stop-color="#5C4F38" />
+                    <stop offset="100%" stop-color="#362E1F" />
+                </radialGradient>
+                <!-- Summit radiant glow -->
+                <radialGradient id="summitGlowGrad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="rgba(212, 175, 55, 0.7)" />
+                    <stop offset="60%" stop-color="rgba(212, 175, 55, 0.25)" />
+                    <stop offset="100%" stop-color="rgba(212, 175, 55, 0)" />
+                </radialGradient>
+            </defs>
+
+            <!-- Mountain Hill fill with terraced shading -->
+            <path d="M 0 190 L 0 168 Q 70 134 140 94 Q 200 60 270 24 L 280 24 L 280 190 Z"
                   fill="var(--color-lapis)" opacity="0.08" />
-            <!-- Hill ridge line -->
+            <path d="M 0 190 L 0 178 Q 80 148 150 110 Q 210 75 280 40 L 280 190 Z"
+                  fill="var(--color-gold)" opacity="0.05" />
+
+            <!-- Mountain Ridge trail line -->
             <path d="M 5 170 Q 75 132 142 92 Q 202 60 272 22"
                   stroke="var(--color-lapis)" stroke-width="2.5" fill="none"
-                  stroke-linecap="round" opacity="0.5" />
+                  stroke-linecap="round" opacity="0.45" />
 
+            <!-- Summit Temple / Altar of Knowledge -->
+            <g transform="translate(264, 18)">
+                <circle cx="0" cy="0" r="18" fill="url(#summitGlowGrad)" />
+                <!-- Pillar altar base -->
+                <rect x="-6" y="-1" width="12" height="12" fill="var(--color-gold)" rx="1.5" />
+                <rect x="-8" y="-3" width="16" height="3" fill="var(--color-gold)" rx="1" />
+                <!-- Sacred flame urn -->
+                <ellipse cx="0" cy="-4" rx="4" ry="2" fill="var(--color-lapis-dark)" />
+                <circle cx="0" cy="-7" r="2.5" fill="var(--color-gold)" opacity="0.9" />
+            </g>
+
+            <!-- Stepping stone notches along the path (1 to 7) -->
             @for (int i = 1; i <= 7; i++)
             {
                 var nx = GetNotchX(i);
                 var ny = GetNotchY(i);
-                bool isCurrent = i == State.Streak.CurrentStreak;
-                bool isPast    = i <  State.Streak.CurrentStreak;
+                bool isPast = i < State.Streak.CurrentStreak;
+                bool isTarget = i == State.Streak.CurrentStreak;
 
-                @if (isCurrent)
-                {
-                    <circle cx="@nx.ToString("F1")" cy="@ny.ToString("F1")" r="14"
-                            fill="var(--color-gold)" opacity="0.15" />
-                    <circle cx="@nx.ToString("F1")" cy="@ny.ToString("F1")" r="10"
-                            fill="var(--color-lapis)" stroke="var(--color-gold)" stroke-width="2" />
-                }
-                else if (isPast)
-                {
-                    <circle cx="@nx.ToString("F1")" cy="@ny.ToString("F1")" r="6"
-                            fill="var(--color-lapis)" stroke="var(--color-lapis)"
-                            stroke-width="2" opacity="0.5" />
-                }
-                else
-                {
-                    <circle cx="@nx.ToString("F1")" cy="@ny.ToString("F1")" r="6"
-                            fill="none" stroke="var(--color-lapis)"
-                            stroke-width="2" opacity="0.3" />
-                }
+                <!-- Stepping stone base -->
+                <ellipse cx="@nx.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)"
+                         cy="@((ny + 5).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))"
+                         rx="7" ry="3.5"
+                         fill="rgba(0,0,0,0.18)" />
+
+                <circle cx="@nx.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)"
+                        cy="@ny.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)"
+                        r="@(isTarget ? "6.5" : "4.5")"
+                        fill="@(isPast ? "var(--color-gold)" : isTarget ? "var(--color-lapis)" : "var(--color-card)")"
+                        stroke="@(isTarget || isPast ? "var(--color-gold)" : "var(--color-card-border)")"
+                        stroke-width="@(isTarget ? "2" : "1.5")" />
             }
+
+            <!-- ═══════════════════════════════════════════════════════════════
+                 SISYPHUS SPRITE ASSET & BOULDER
+                 Dynamically translates to current notch coordinates
+                 ═══════════════════════════════════════════════════════════════ -->
+            <g class="sisyphus-sprite-group"
+               transform="translate(@(CurrentX.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)), @(CurrentY.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)))">
+                <!-- Boulder Contact Shadow -->
+                <ellipse cx="10" cy="8" rx="14" ry="4" fill="rgba(0,0,0,0.3)" />
+
+                <!-- Dust particles kicked up by Sisyphus sandals -->
+                <circle cx="-20" cy="6" r="2.5" fill="var(--color-gold)" opacity="0.5" class="dust-particle" />
+                <circle cx="-25" cy="4" r="1.8" fill="var(--color-gold)" opacity="0.4" class="dust-particle" />
+                <circle cx="-16" cy="8" r="1.5" fill="var(--color-gold)" opacity="0.3" class="dust-particle" />
+
+                <!-- Sisyphus Character Body -->
+                <!-- Back Leg digging in for traction -->
+                <path d="M -13 1 L -21 7 L -25 7" stroke="#A8834E" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                <!-- Front Leg bent forward bracing -->
+                <path d="M -9 1 L -9 8 L -6 9" stroke="#A8834E" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+
+                <!-- Torso leaning into the boulder (35 degree athletic thrust) -->
+                <path d="M -14 0 L -7 -9" stroke="var(--color-lapis)" stroke-width="5" stroke-linecap="round" fill="none" />
+
+                <!-- Hellenistic Chiton / Tunic with Gold Trim -->
+                <polygon points="-16,-1 -7,-1 -5,-9 -15,-9" fill="var(--color-lapis)" stroke="var(--color-gold)" stroke-width="0.8" />
+                <!-- Gold sash/belt -->
+                <line x1="-15" y1="-4" x2="-6" y2="-4" stroke="var(--color-gold)" stroke-width="1.2" />
+
+                <!-- Muscular Arms pushing into the boulder surface -->
+                <path d="M -8 -8 L -1 -5 L 4 -3" stroke="#A8834E" stroke-width="2.4" stroke-linecap="round" fill="none" />
+                <path d="M -7 -6 L 1 -3 L 6 -1" stroke="#BD965C" stroke-width="2.2" stroke-linecap="round" fill="none" />
+
+                <!-- Head with Hellenistic Laurel Headband -->
+                <circle cx="-6" cy="-14" r="3.8" fill="#E2BA86" stroke="#9E763E" stroke-width="0.8" />
+                <!-- Golden Laurel Headband -->
+                <path d="M -9 -15 Q -6 -17 -3 -15" stroke="var(--color-gold)" stroke-width="1.4" fill="none" />
+
+                <!-- ─── The Great Stone Boulder ─── -->
+                <circle cx="9" cy="-6" r="14" fill="url(#boulderGrad)" stroke="var(--color-gold)" stroke-width="1.2" />
+                <!-- Stone crags and fissures -->
+                <path d="M 3 -13 Q 8 -8 7 -2 Q 6 3 11 5" stroke="rgba(0,0,0,0.35)" stroke-width="1.2" stroke-linecap="round" fill="none" />
+                <path d="M 9 -10 Q 14 -7 16 -1" stroke="rgba(255,255,255,0.35)" stroke-width="1" stroke-linecap="round" fill="none" />
+                <path d="M 1 -4 Q 5 -2 8 -6" stroke="rgba(0,0,0,0.25)" stroke-width="0.8" fill="none" />
+
+                <!-- Energy Orbit Shimmer around boulder -->
+                <circle cx="9" cy="-6" r="15.5" fill="none" stroke="var(--color-gold)" stroke-width="0.9" opacity="0.6" stroke-dasharray="3,3" class="boulder-orbit" />
+            </g>
         </svg>
 
-        <!-- Notch label — plain HTML div overlaid via absolute positioning -->
-        <div class="notch-label"
-             style="left:@(LabelLeftPct.ToString("F1"))%; top:@(LabelTopPct.ToString("F1"))%"
-             aria-label="Current notch: @State.Streak.CurrentStreak of 7">
-            NOTCH @State.Streak.CurrentStreak
+        <!-- Current Notch Milestone Badge -->
+        <div class="absolute bottom-2 left-2 bg-[var(--color-card)]/90 backdrop-blur-sm border border-gold/30 rounded px-2 py-0.5 text-[0.65rem] font-bold text-gold-dark dark:text-gold flex items-center gap-1.5 shadow-sm">
+            <span>⛰️</span>
+            <span>Notch @State.Streak.CurrentStreak of 7: @GetMilestoneTitle(State.Streak.CurrentStreak)</span>
         </div>
     </div>
 
-    <!-- Counters row -->
-    <div class="streak-counters" role="group" aria-label="Streak statistics">
-        <div class="counter-item">
-            <span class="counter-value">@State.Streak.CurrentStreak/7</span>
-            <span class="counter-label">Current Streak</span>
+    <!-- Streak Statistics Grid (Tailwind) -->
+    <div class="grid grid-cols-3 divide-x divide-[var(--color-card-border)] py-2 border-y border-[var(--color-card-border)]" role="group" aria-label="Streak statistics">
+        <div class="flex flex-col items-center gap-0.5 px-1">
+            <span class="font-heading text-lg font-bold text-[var(--color-text-primary)] leading-none">@State.Streak.CurrentStreak/7</span>
+            <span class="text-[0.68rem] text-[var(--color-text-muted)] tracking-wider uppercase">Streak</span>
         </div>
-        <div class="counter-divider" aria-hidden="true"></div>
-        <div class="counter-item">
-            <span class="counter-value">@State.Streak.TotalDays</span>
-            <span class="counter-label">Total Days</span>
+        <div class="flex flex-col items-center gap-0.5 px-1">
+            <span class="font-heading text-lg font-bold text-[var(--color-text-primary)] leading-none">@State.Streak.TotalDays</span>
+            <span class="text-[0.68rem] text-[var(--color-text-muted)] tracking-wider uppercase">Total Days</span>
         </div>
-        <div class="counter-divider" aria-hidden="true"></div>
-        <div class="counter-item">
-            <span class="counter-value">@State.Streak.HighestStreak</span>
-            <span class="counter-label">Highest</span>
+        <div class="flex flex-col items-center gap-0.5 px-1">
+            <span class="font-heading text-lg font-bold text-[var(--color-text-primary)] leading-none">@State.Streak.HighestStreak</span>
+            <span class="text-[0.68rem] text-[var(--color-text-muted)] tracking-wider uppercase">Best Peak</span>
         </div>
     </div>
 
-    <!-- Log today button -->
-    <button class="btn btn-outline streak-advance-btn"
+    @if (State.Streak.IsBonusTrigger)
+    {
+        <div class="p-2.5 rounded-md bg-gold-light border border-gold/40 text-center text-xs font-bold text-gold-dark dark:text-gold animate-pulse">
+            🎉 Summit Reached! +50 Bonus Capsules Awarded!
+        </div>
+    }
+
+    <!-- Log Today Button (Tailwind) -->
+    <button class="w-full py-2.5 px-4 rounded-md border border-gold/50 bg-gold-light hover:bg-gold text-[var(--color-text-primary)] hover:text-black font-heading text-xs font-bold tracking-wider uppercase transition-all duration-200 shadow-sm flex items-center justify-center gap-2 active:scale-98"
             id="advance-streak-btn"
             @onclick="State.IncrementStreak"
-            title="Log today's study session">
-        + Log Today
+            title="Log today's study progress and push the boulder forward">
+        <span>⚡</span> Push Boulder Forward (+1 Day)
     </button>
 </div>
 
@@ -88,12 +174,23 @@
         => State.OnChange += StateHasChanged;
 
     // ViewBox 280x190 — diagonal from (10,168) to (264,24)
-    private static double GetNotchX(int n) => 10 + (n - 1) * (254.0 / 6);
-    private static double GetNotchY(int n) => 168 - (n - 1) * (144.0 / 6);
+    private static double GetNotchX(int n) => 12 + (n - 1) * (250.0 / 6);
+    private static double GetNotchY(int n) => 166 - (n - 1) * (142.0 / 6);
 
-    // Convert SVG coords to % of viewBox for CSS absolute positioning
-    private double LabelLeftPct =>  GetNotchX(State.Streak.CurrentStreak) / 280.0 * 100.0;
-    private double LabelTopPct  => (GetNotchY(State.Streak.CurrentStreak) + 16) / 190.0 * 100.0;
+    private double CurrentX => GetNotchX(State.Streak.CurrentStreak);
+    private double CurrentY => GetNotchY(State.Streak.CurrentStreak);
+
+    private static string GetMilestoneTitle(int notch) => notch switch
+    {
+        1 => "Foot of the Mountain",
+        2 => "Rocky Ascent",
+        3 => "Windswept Terrace",
+        4 => "Halfway Crest",
+        5 => "Cliff of Endurance",
+        6 => "Summit Threshold",
+        7 => "Altar of Mastery",
+        _ => "The Journey"
+    };
 
     public void Dispose()
         => State.OnChange -= StateHasChanged;
