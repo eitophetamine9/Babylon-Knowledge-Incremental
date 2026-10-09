@@ -2,10 +2,13 @@ namespace BabylonKnowledgeIncremental.Models;
 
 public class StreakState
 {
-    public int CurrentStreak { get; private set; } = 3;
-    public int TotalDays { get; private set; } = 42;
-    public int HighestStreak { get; private set; } = 14;
-    public bool IsBonusTrigger { get; private set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public int CurrentStreak { get; set; } = 3;
+    public int TotalDays { get; set; } = 42;
+    public int HighestStreak { get; set; } = 14;
+    public bool IsBonusTrigger { get; set; }
+    public DateTime? LastAscentDate { get; set; }
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
     /// Increments the daily streak, loops at 7 and fires a bonus trigger.
@@ -15,6 +18,8 @@ public class StreakState
         TotalDays++;
         CurrentStreak++;
         IsBonusTrigger = false;
+        LastAscentDate = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
 
         if (CurrentStreak > HighestStreak)
             HighestStreak = CurrentStreak;
@@ -22,7 +27,7 @@ public class StreakState
         if (CurrentStreak >= 7)
         {
             IsBonusTrigger = true;
-            CurrentStreak = 1; // loop back to start of new week
+            CurrentStreak = 1; // cycle restart
         }
     }
 
@@ -33,5 +38,6 @@ public class StreakState
     {
         CurrentStreak = 0;
         IsBonusTrigger = false;
+        UpdatedAt = DateTime.UtcNow;
     }
 }
