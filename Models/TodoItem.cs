@@ -6,4 +6,11 @@ public class TodoItem
     public string Title { get; set; } = string.Empty;
     public bool IsCompleted { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? CompletedAt { get; set; }
+
+    public void ToggleCompletion()
+    {
+        IsCompleted = !IsCompleted;
+        CompletedAt = IsCompleted ? DateTime.UtcNow : null;
+    }
 }

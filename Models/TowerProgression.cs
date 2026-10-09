@@ -2,9 +2,11 @@ namespace BabylonKnowledgeIncremental.Models;
 
 public class TowerProgression
 {
-    public int CurrentLevel { get; private set; } = 24;
-    public int CurrentEnergy { get; private set; } = 760;
-    public int EnergyRequiredForNextLevel { get; private set; } = 1000;
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public int CurrentLevel { get; set; } = 24;
+    public int CurrentEnergy { get; set; } = 760;
+    public int EnergyRequiredForNextLevel { get; set; } = 1000;
+    public DateTime LastOfferedAt { get; set; } = DateTime.UtcNow;
 
     public double EnergyPercent =>
         Math.Min(100.0, (double)CurrentEnergy / EnergyRequiredForNextLevel * 100.0);
@@ -19,6 +21,7 @@ public class TowerProgression
     {
         int capsulesEarned;
         CurrentEnergy += amount;
+        LastOfferedAt = DateTime.UtcNow;
 
         if (CurrentEnergy >= EnergyRequiredForNextLevel)
         {
