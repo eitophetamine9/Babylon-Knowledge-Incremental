@@ -1,15 +1,21 @@
 namespace BabylonKnowledgeIncremental.Models;
 
-public enum Rarity { Common, Rare, Epic }
+public enum Rarity 
+{ 
+    Common, 
+    Rare, 
+    Epic 
+}
 
 public class GachaItem
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Name { get; set; } = string.Empty;
-    public Rarity Rarity { get; set; }
+    public Rarity Rarity { get; set; } = Rarity.Common;
     public string Category { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string Emoji { get; set; } = "✨";
+    public DateTime? UnlockedAt { get; set; }
 
     public string RarityColor => Rarity switch
     {
@@ -19,7 +25,7 @@ public class GachaItem
         _             => "#8B7355"
     };
 
-    public string RarityLabel => Rarity.ToString().ToUpper();
+    public string RarityLabel => Rarity.ToString().ToUpperInvariant();
 
     public string RarityBadgeClass => Rarity switch
     {
